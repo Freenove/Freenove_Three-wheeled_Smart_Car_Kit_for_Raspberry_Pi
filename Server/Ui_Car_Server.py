@@ -56,7 +56,7 @@ class Ui_MainWindow(object):
         self.logo = QtGui.QGraphicsView(self.centralWidget)
         self.logo.setGeometry(QtCore.QRect(10, 10, 320, 180))
         self.logo.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.logo.setAutoFillBackground(True)
+        self.logo.setAutoFillBackground(False)
         self.logo.setFrameShape(QtGui.QFrame.NoFrame)
         self.logo.setFrameShadow(QtGui.QFrame.Sunken)
         self.logo.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -74,7 +74,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "Smart Car Server for RPi", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Freenove Server for Smart Car", None))
         self.btn_CameraServer.setText(_translate("MainWindow", "TURN ON", None))
         self.label_CamerServer.setText(_translate("MainWindow", "Camera Server", None))
         self.label_TCPServer.setText(_translate("MainWindow", "TCP Server", None))

@@ -512,7 +512,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "Smart Car for RPi Client", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Freenove Client for Smart Car", None))
         self.btn_Up.setText(_translate("MainWindow", "UP", None))
         self.btn_Left.setText(_translate("MainWindow", "LEFT", None))
         self.btn_Down.setText(_translate("MainWindow", "DOWN", None))
