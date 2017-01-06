@@ -149,12 +149,21 @@ class mTCPServer(threading.Thread):
                         value = int(filter(str.isdigit, RecvData))
                         print value  
                     elif cmd.CMD_BUZZER_ALARM[1:]  in RecvData:
-                        if mdev.Is_Buzzer_State_True is True:
-                            mdev.Is_Buzzer_State_True = False
-                            mdev.writeReg(mdev.CMD_BUZZER,0)
-                        elif mdev.Is_Buzzer_State_True is False:                		
-                            mdev.Is_Buzzer_State_True = True
-                            mdev.writeReg(mdev.CMD_BUZZER,2000)
+						try:
+							value = int(filter(str.isdigit, RecvData))
+							if value != 0:
+								mdev.writeReg(mdev.CMD_BUZZER,2000)
+							elif value == 0:               		
+								mdev.writeReg(mdev.CMD_BUZZER,0)
+						except Exception ,  e:
+							print "Command without parameters"
+							if mdev.Is_Buzzer_State_True is True:
+								mdev.Is_Buzzer_State_True = False
+								mdev.writeReg(mdev.CMD_BUZZER,0)
+							elif mdev.Is_Buzzer_State_True is False:                		
+								mdev.Is_Buzzer_State_True = True
+								mdev.writeReg(mdev.CMD_BUZZER,2000)
+						
                     elif cmd.CMD_RGB_B[1:]  in RecvData:
                         if mdev.Is_IO3_State_True is True:
                             mdev.Is_IO3_State_True = False
@@ -179,6 +188,7 @@ class mTCPServer(threading.Thread):
                     elif cmd.CMD_ULTRASONIC[1:]  in RecvData:
                         sonic = mdev.getSonic()
                         self.sendData(str(sonic))
+            #time.sleep(1)
     def stopTCPServer(self):
         pass
         try:

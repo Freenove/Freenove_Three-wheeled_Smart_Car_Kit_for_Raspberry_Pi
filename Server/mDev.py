@@ -57,6 +57,7 @@ class mDEV:
 	def writeReg(self,cmd,value):
 		try:
 			self.bus.write_i2c_block_data(self.address,cmd,[value>>8,value&0xff])
+			time.sleep(0.001)
 		except Exception,e:
 			print Exception,"I2C Error :",e
 		
