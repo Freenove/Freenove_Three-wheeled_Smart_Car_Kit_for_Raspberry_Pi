@@ -6,7 +6,6 @@ How to download
 
 Files
   The files for this product and their introduction are as follows:
-    Android App		App  of Android
     Client          Code of Client
     mjpg-streamer   Code of mjpg-streamer
     Server          Code of Server
