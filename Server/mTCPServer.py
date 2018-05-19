@@ -185,9 +185,9 @@ class mTCPServer(threading.Thread):
                         elif mdev.Is_IO2_State_True is False:
                             mdev.Is_IO2_State_True = True
                             mdev.writeReg(mdev.CMD_IO2,1)    
-                    elif cmd.CMD_ULTRASONIC[1:]  in RecvData:
-                        sonic = mdev.getSonic()
-                        self.sendData(str(sonic))
+                    elif cmd.CMD_ULTRASONIC[1:]  in RecvData:						
+						sonic = mdev.getSonic()
+						self.sendData(str(sonic))
             #time.sleep(1)
     def stopTCPServer(self):
         pass
