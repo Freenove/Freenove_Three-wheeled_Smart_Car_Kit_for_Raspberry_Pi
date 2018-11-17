@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Terminal=true
+Name=RaspberryPiCar
+Comment=Freenove_Three-wheeled_Smart_Car_Kit_for_Raspberry_Pi.Server.Autostart
+Exec=sudo sh /home/pi/Freenove_Three-wheeled_Smart_Car_Kit_for_Raspberry_Pi/Server/Startup.sh
+Icon=None
+MultipleArgs=false
+Categories=Application
+StartupNotify=true
+Hidden=false
+NoDisplay=false
