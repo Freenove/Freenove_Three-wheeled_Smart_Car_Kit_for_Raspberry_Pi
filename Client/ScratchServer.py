@@ -94,9 +94,7 @@ class ScratchServer(BaseHTTPRequestHandler):
         elif cmd == "lightBlue":
             return self.lightBlue()
         elif cmd == "buzz":
-            return self.buzz(pathParts[1])
-        elif cmd == "buzzWait":
-            return self.buzzWait(pathParts[1])
+            return self.buzz(pathParts[2])
         elif cmd == "distance":
             return self.distance()
         elif cmd == "lastError":
@@ -121,7 +119,7 @@ class ScratchServer(BaseHTTPRequestHandler):
 
     def getXDomainResponse(self):
         resp = "<cross-domain-policy>\n"
-        resp += "<allow-access-from domain=\"*\" to-ports=\"8090\"/>\n"
+        resp += "<allow-access-from domain=\"*\" to-ports=\"8085\"/>\n"
         resp += "</cross-domain-policy>\x00"
         return resp
 
@@ -330,24 +328,6 @@ class ScratchServer(BaseHTTPRequestHandler):
         return ScratchServer.msg
 
     
-    def buzzWait(self, duration):
-        try:
-            duration = int(duration)
-
-            print "Buzzing started"
-            self.tcp.sendData(cmd.CMD_BUZZER_ALARM)        
-            time.sleep(float(duration) / 1000)
-            self.tcp.sendData(cmd.CMD_BUZZER_ALARM)        
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
-            return ScratchServer.lastError
-
-        ScratchServer.msg = "Buzzed for " + str(duration) + "ms"
-        print ScratchServer.msg
-        return ScratchServer.msg
-
-    
     def moveForward(self, speed):
         try:
             speed = int(speed)
@@ -486,7 +466,7 @@ class ScratchServer(BaseHTTPRequestHandler):
      
             
 ScratchServer.iSonic = 0
-httpd = HTTPServer(('localhost', 8090), ScratchServer)
+httpd = HTTPServer(('localhost', 8085), ScratchServer)
 
 httpd.serve_forever()
     
