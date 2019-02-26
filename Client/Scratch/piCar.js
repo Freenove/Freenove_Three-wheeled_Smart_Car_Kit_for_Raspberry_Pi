@@ -6,7 +6,7 @@
     ext._getStatus = function() {
         return {status: 2, msg: 'Ready'};
     };
-    baseUrl = "http://localhost:8090/";
+    baseUrl = "http://localhost:8085/";
     ext.connect = function (hostName, callback){
         $.ajax({
         url: baseUrl + 'connect/' + hostName,
@@ -184,17 +184,19 @@
     };
 
     ext.buzz = function (duration) {
-        $.ajax({
-            url: baseUrl + 'buzz/' + duration.toString(),
-            dataType: 'text',
-            success: function (data) {
-            }
-        });
+        setTimeout(function () {
+            $.ajax({
+                url: baseUrl + 'buzz/' + duration.toString(),
+                dataType: 'text',
+                success: function (data) {
+                }
+            });
+        }, 10)        
     };
 
     ext.buzzWait = function (duration, callback) {
         $.ajax({
-            url: baseUrl + 'buzzWait/' + duration.toString(),
+            url: baseUrl + 'buzz/' + duration.toString(),
             dataType: 'text',
             success: function (data) {
                 callback();
@@ -253,7 +255,7 @@
             [" ", "Toggle Red light", "lightRed"],
             [" ", "Toggle Green light", "lightGreen"],
             [" ", "Toggle Blue light", "lightBlue"],
-            ["w", "Buzz for %n ms", "buzz", 1000],
+            [" ", "Buzz for %n ms", "buzz", 1000],
             ["w", "Buzz and Wait for %n ms", "buzzWait", 1000],
             ["R", "distance", "distance"],
             ["R", "lastError", "lastError"],
