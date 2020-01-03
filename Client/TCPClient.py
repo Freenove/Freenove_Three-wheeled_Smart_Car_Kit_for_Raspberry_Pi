@@ -38,19 +38,19 @@ class TCPClient:
     def disConnect(self):        
         try:
             self.client.close()
-        except Exception, e:
-            print Exception, "Disconnect error:", e
+        except Exception as e:
+            print(Exception, "Disconnect error:", e)
         
     def sendData(self, data):
         try:
             self.client.send(data)
-        except Exception, e:
-            print Exception, "Send TCP Data error:", e
+        except Exception as e:
+            print(Exception, "Send TCP Data error:", e)
     
     def recvData(self):
         try:
             return self.client.recv(self.BUFSIZ)
-        except Exception, e:
-            print Exception, "Recv TCP Data error:", e
+        except Exception as e:
+            print(Exception, "Recv TCP Data error:", e)
         
         

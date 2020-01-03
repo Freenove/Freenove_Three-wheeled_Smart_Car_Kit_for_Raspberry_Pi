@@ -63,8 +63,8 @@ class DemoClass(QMainWindow, Ui_MainWindow):
         try :            
             file_Config = open("Config.txt", "r")
             self.default_Server_IP = file_Config.read()
-        except Exception, e:
-            print "Config.txt is not exist,If the Program is the first executed, To ignore this information", e
+        except Exception as e:
+            print("Config.txt is not exist,If the Program is the first executed, To ignore this information", e)
         finally:
             file_Config.close()
         self.lineEdit_IP_Addr.setText(self.default_Server_IP) 
@@ -217,8 +217,8 @@ class DemoClass(QMainWindow, Ui_MainWindow):
             print "Connecting......", server_ip                
             try:
                 self.tcp.connectToServer(address = (server_ip, 12345))
-            except Exception, e:
-                print "Connect to server Faild!: Server IP is right? Server is opend?", e                
+            except Exception as e:
+                print("Connect to server Faild!: Server IP is right? Server is opend?", e)
                 self.msgDlg.showMessage("Connect to server Faild! \n\t1. Server IP is right? \n\t2. Server is opend?")
                 return 
             print "Connecttion Successful !"
@@ -226,7 +226,7 @@ class DemoClass(QMainWindow, Ui_MainWindow):
                 file_Config = open("Config.txt", "w")
                 file_Config.write(server_ip)
                 file_Config.close()
-                print "default_Server_IP is Changed!"
+                print("default_Server_IP is Changed!")
             self.webView.setZoomFactor(1.2)
             self.webView.setUrl(QUrl("http://"+server_ip+":8090/javascript_simple.html"))
             
@@ -364,8 +364,8 @@ class Recv_Sonic_Thread(threading.Thread):
             sonic = self.wgt_main.tcp.recvData()
             try :
                 iSonic = float(sonic)
-            except Exception, e:
-                print "Sonic Data error :", e
+            except Exception as e:
+                print("Sonic Data error :", e)
                 iSonic = 0
             self.wgt_main.sonic_buff[self.wgt_main.sonic_Index] = iSonic
             #print iSonic  
@@ -396,7 +396,7 @@ class Scan_Sonic_Thread(threading.Thread):
                 self.wgt_main.tcp.sendData(cmd.CMD_ULTRASONIC)
                 self.wgt_main.mutex.release()
             time.sleep(self.scan_speed)        
-        print self.wgt_main.sonic_buff
+        print(self.wgt_main.sonic_buff)
         for angle in range(self.max_Angle, self.min_Angle-1, -1*self.inteval_Angle):
             self.wgt_main.sonic_Index = angle/self.inteval_Angle
             self.wgt_main.Camera_H_Pos = angle
@@ -406,7 +406,7 @@ class Scan_Sonic_Thread(threading.Thread):
                 self.wgt_main.tcp.sendData(cmd.CMD_ULTRASONIC)
                 self.wgt_main.mutex.release()
             time.sleep(self.scan_speed)
-        print self.wgt_main.sonic_buff  
+        print(self.wgt_main.sonic_buff)
         
 class Piant_Thread(threading.Thread):
     #wgt_Drawing = PaintArea(QMainWindow)
@@ -437,7 +437,7 @@ class Piant_Thread(threading.Thread):
             #self.wgt_main.sonic_buff[angle/self.inteval_Angle] = iSonic            
             time.sleep(0.1)        
         #send_Counter = send_Counter +1
-        print self.wgt_main.sonic_buff
+        print(self.wgt_main.sonic_buff)
         for angle in range(self.max_Angle, self.min_Angle-1, -1*self.inteval_Angle):
             self.wgt_main.sonic_Index = angle/self.inteval_Angle
             self.wgt_main.Camera_H_Pos = angle
@@ -448,7 +448,7 @@ class Piant_Thread(threading.Thread):
                 self.wgt_main.mutex.release()
             #self.wgt_main.sonic_buff[angle/self.inteval_Angle] = iSonic
             time.sleep(0.1)
-        print self.wgt_main.sonic_buff    
+        print(self.wgt_main.sonic_buff)
 class PaintArea(QWidget):    
     max_range = 201
     def __init__(self, parent=None):
