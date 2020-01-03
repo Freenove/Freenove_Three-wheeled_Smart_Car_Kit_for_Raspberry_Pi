@@ -24,9 +24,9 @@ class Camera_Server(threading.Thread):
 		os.system("sudo sh Start_mjpg_Streamer.sh")
 		
 	def run(self):
-		print ".............Camera server starting ......"
+		print(".............Camera server starting ......")
 		self.camera_Http_Server()
-		print ".............Camera server stop..........."
+		print(".............Camera server stop...........")
 		
 	def stop(self):
 		os.system("sudo sh Stop_mjpg_Streamer.sh")

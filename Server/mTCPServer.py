@@ -40,8 +40,8 @@ class mTCPServer(threading.Thread):
         self.sock = socket(AF_INET, SOCK_STREAM)
         try:
 			self.sock.bind(self.ADDR)
-        except Exception,e:
-			print "Bind Error : ",e
+        except Exception as e:
+			print("Bind Error : ",e)
 			self.tcpClientSock, self.addr = self.sock.accept()
 			self.sock.bind(self.ADDR)
         self.sock.listen(1)        
@@ -50,20 +50,20 @@ class mTCPServer(threading.Thread):
         #self.t.start()
         
         #self.t.setDaemon(True)
-        print "TCP Server Thread Starting ... "
+        print("TCP Server Thread Starting ... ")
 
     def tcpLink(self):
         while True:
-            print "Wating for connect ... "
+            print("Wating for connect ... ")
             try:
 			    self.tcpClientSock, self.addr = self.sock.accept()
-			    print "Connect from ", self.addr
-            except Exception ,  e:
-				print "sock closed! Error: ",e
+			    print("Connect from ", self.addr)
+            except Exception as e:
+				print("sock closed! Error: ", e)
 				try:
 					self.tcpClientSock.close()
-				except Exception ,  e:
-					print "Client close Error",e
+				except Exception as e:
+					print("Client close Error", e)
 				self.sock.shutdown(2)
 				self.sock.close()             
 				break			
@@ -71,15 +71,15 @@ class mTCPServer(threading.Thread):
             while True:
                 try:
                     RecvData_ALL = self.tcpClientSock.recv(self.BUFSIZ)
-                except Exception ,  e:
-                    print e
+                except Exception as e:
+                    print(e)
                     self.tcpClientSock.close()
                     break
                 if not RecvData_ALL:
                     break
                 #print RecvData_ALL
                 RecvData_Array = RecvData_ALL.split(">")
-                print RecvData_Array
+                print(RecvData_Array)
                 for RecvData in RecvData_Array:                    
                     if RecvData == "":
                         continue
@@ -87,8 +87,8 @@ class mTCPServer(threading.Thread):
                     if cmd.CMD_FORWARD[1:]  in RecvData:
                         try:
                             value = int(filter(str.isdigit, RecvData))
-                        except Exception,e:
-                            print e
+                        except Exception as e:
+                            print(e)
                             continue
                         mdev.writeReg(mdev.CMD_DIR1,1)
                         mdev.writeReg(mdev.CMD_DIR2,1)
@@ -103,11 +103,11 @@ class mTCPServer(threading.Thread):
                         pass
                     elif cmd.CMD_TURN_LEFT[1:]   in RecvData:
                         value = int(filter(str.isdigit, RecvData))
-                        mdev.writeReg(mdev.CMD_SERVO1,numMap(90+value,0,180,500,2500))
+                        mdev.writeReg(mdev.CMD_SERVO1, numMap(90+value,0,180,500,2500))
                         pass
                     elif cmd.CMD_TURN_RIGHT[1:]   in RecvData:
                         value = int(filter(str.isdigit, RecvData))
-                        mdev.writeReg(mdev.CMD_SERVO1,numMap(90-value,0,180,500,2500))
+                        mdev.writeReg(mdev.CMD_SERVO1, numMap(90-value,0,180,500,2500))
                         pass
                     elif cmd.CMD_STOP[1:]   in RecvData:
                         mdev.writeReg(mdev.CMD_PWM1,0)
@@ -139,15 +139,15 @@ class mTCPServer(threading.Thread):
                         pass
                     elif cmd.CMD_SPEED_SLIDER[1:]  in RecvData:
                         value = int(filter(str.isdigit, RecvData))
-                        print value
+                        print(value)
                         pass
                     elif cmd.CMD_DIR_SLIDER[1:]   in RecvData :
                         value = int(filter(str.isdigit, RecvData))
-                        print value
+                        print(value)
                         pass
                     elif cmd.CMD_CAMERA_SLIDER[1:]   in RecvData :
                         value = int(filter(str.isdigit, RecvData))
-                        print value  
+                        print(value)
                     elif cmd.CMD_BUZZER_ALARM[1:]  in RecvData:
 						try:
 							value = int(filter(str.isdigit, RecvData))
@@ -155,8 +155,8 @@ class mTCPServer(threading.Thread):
 								mdev.writeReg(mdev.CMD_BUZZER,2000)
 							elif value == 0:               		
 								mdev.writeReg(mdev.CMD_BUZZER,0)
-						except Exception ,  e:
-							print "Command without parameters"
+						except Exception as e:
+							print("Command without parameters")
 							if mdev.Is_Buzzer_State_True is True:
 								mdev.Is_Buzzer_State_True = False
 								mdev.writeReg(mdev.CMD_BUZZER,0)
@@ -193,8 +193,8 @@ class mTCPServer(threading.Thread):
         pass
         try:
 			self.tcpClientSock.close()
-        except Exception ,  e:
-			print "Client close Error",e
+        except Exception as e:
+			print("Client close Error", e)
         self.sock.shutdown(2)
         self.sock.close()
         
