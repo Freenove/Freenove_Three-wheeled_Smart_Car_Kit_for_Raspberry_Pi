@@ -1,35 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
- ******************************************************************************
- * File  main.py
- * Author  Freenove (http://www.freenove.com)
- * Date    2016/11/14
- ******************************************************************************
- * Brief
- *   This is the Freenove Three-wheeled Smart Car for Raspberry Pi the Client code.
- *   Execute this file with Python2.7.
- ******************************************************************************
- * Copyright
- *   Copyright © Freenove (http://www.freenove.com)
- * License
- *   Creative Commons Attribution ShareAlike 3.0 
- *   (http://creativecommons.org/licenses/by-sa/3.0/legalcode)
- ******************************************************************************
-"""
-"""
-Module implementing DemoClass.
-"""
-from PyQt4.QtCore import *
-from PyQt4 import  QtGui, QtCore
-from PyQt4.QtGui import *
-from PyQt4.QtCore import pyqtSignature
-from PyQt4.QtGui import (QApplication, QMainWindow, QGraphicsScene)
+########################################################################
+# Filename    : main.py
+# Description : Module implementing MainWindow.
+# auther      : www.freenove.com
+# modification: 2020/03/26
+########################################################################
+
+from PyQt5 import QtCore, QtGui  #, QtWebEngineWidgets
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QGraphicsScene, QWidget)
+
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 from Ui_main import Ui_MainWindow
 from TCPClient import TCPClient
 from Command import COMMAND as cmd
 from Message import Messgae_Dialog
-
+import os
 from Freenove_Math import * 
 import time
 import threading
@@ -37,7 +26,7 @@ import math
 #import copy
 from CloseThreading import *
 
-class DemoClass(QMainWindow, Ui_MainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
     tcp = TCPClient()
     default_Server_IP = "192.168.1.108"
     Camera_H_Pos = 90
@@ -56,15 +45,19 @@ class DemoClass(QMainWindow, Ui_MainWindow):
         self.setFixedSize(self.width(), self.height())
         self.msgDlg = Messgae_Dialog()
         self.loadLogo()
-        #self.webView.setZoomFactor(1.0)
-        self.webView.setUrl(QUrl("html/car_photo.html"))
+        self.webView.setZoomFactor(1.2)
+        #self.webView.setUrl(QUrl().fromLocalFile("/html/car_photo.html"))
+        #self.webView.setUrl(QtCore.QUrl("file:/html/car_photo.html"))
+        photo_Path= os.getcwd()+'/html/car_photo.html'
+        self.webView.load(QtCore.QUrl.fromUserInput(photo_Path))
+        #self.webView.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.ShowScrollBars, False) 
         self.webView.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         self.webView.page().mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff) 
         try :            
             file_Config = open("Config.txt", "r")
             self.default_Server_IP = file_Config.read()
-        except Exception, e:
-            print "Config.txt is not exist,If the Program is the first executed, To ignore this information", e
+        except (Exception, e):
+            print(("Config.txt is not exist,If the Program is the first executed, To ignore this information", e))
         finally:
             file_Config.close()
         self.lineEdit_IP_Addr.setText(self.default_Server_IP) 
@@ -89,52 +82,53 @@ class DemoClass(QMainWindow, Ui_MainWindow):
         view.setScene(scene)
         view.setRenderHint(QPainter.Antialiasing)
         view.show()
+        
    
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Up_pressed(self):        
         self.Camera_V_Pos = self.Camera_V_Pos + self.slider_Camera.value()
         self.Camera_V_Pos = constrain(self.Camera_V_Pos, self.SERVO_MIN_ANGLE, self.SERVO_MAX_ANGLE)
         self.slider_Camera_V.setValue(self.Camera_V_Pos)
         self.tcp.sendData(cmd.CMD_CAMERA_UP + str(self.Camera_V_Pos))
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Up_released(self):
         self.tcp.sendData(cmd.CMD_CAMERA_STOP)
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Left_pressed(self):
         self.Camera_H_Pos = self.Camera_H_Pos + self.slider_Camera.value()
         self.Camera_H_Pos = constrain(self.Camera_H_Pos, self.SERVO_MIN_ANGLE, self.SERVO_MAX_ANGLE)
         self.slider_Camera_H.setValue(self.Camera_H_Pos)
         self.tcp.sendData(cmd.CMD_CAMERA_LEFT + str(self.Camera_H_Pos))        
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Left_released(self):
         self.tcp.sendData(cmd.CMD_CAMERA_STOP)
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Down_pressed(self):
         self.Camera_V_Pos = self.Camera_V_Pos - self.slider_Camera.value()
         self.Camera_V_Pos = constrain(self.Camera_V_Pos, 80, self.SERVO_MAX_ANGLE)
         self.slider_Camera_V.setValue(self.Camera_V_Pos)
         self.tcp.sendData(cmd.CMD_CAMERA_DOWN + str(self.Camera_V_Pos))        
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Down_released(self):
         self.tcp.sendData(cmd.CMD_CAMERA_STOP)
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Right_pressed(self):
         self.Camera_H_Pos = self.Camera_H_Pos - self.slider_Camera.value()
         self.Camera_H_Pos = constrain(self.Camera_H_Pos, self.SERVO_MIN_ANGLE, self.SERVO_MAX_ANGLE)
         self.slider_Camera_H.setValue(self.Camera_H_Pos)
         self.tcp.sendData(cmd.CMD_CAMERA_LEFT + str(self.Camera_H_Pos))
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Right_released(self):
         self.tcp.sendData(cmd.CMD_CAMERA_STOP)
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Home_clicked(self):
         self.Camera_H_Pos = 90
         self.Camera_V_Pos = 90
@@ -143,41 +137,41 @@ class DemoClass(QMainWindow, Ui_MainWindow):
         self.tcp.sendData(cmd.CMD_CAMERA_LEFT + str(90+self.slider_FineServo2.value()))
         self.tcp.sendData(cmd.CMD_CAMERA_UP + str(90+self.slider_FineServo2.value()))
         
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Forward_pressed(self):
         #self.tcp.sendData(cmd.CMD_FORWARD + str(self.slider_Speed.value()))
         self.setMoveSpeed(cmd.CMD_FORWARD,self.slider_Speed.value())
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Forward_released(self):
         self.tcp.sendData(cmd.CMD_STOP)
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_TurnLeft_pressed(self):
         self.tcp.sendData(cmd.CMD_TURN_LEFT + str(self.slider_Direction.value() + self.slider_FineServo1.value()))
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_TurnLeft_released(self):
         self.tcp.sendData(cmd.CMD_TURN_CENTER + str(90+self.slider_FineServo1.value()))
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_TurnRight_pressed(self):
         self.tcp.sendData(cmd.CMD_TURN_RIGHT + str(self.slider_Direction.value() + self.slider_FineServo1.value()))
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_TurnRight_released(self):
         self.tcp.sendData(cmd.CMD_TURN_CENTER + str(90+self.slider_FineServo1.value()))
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Backward_pressed(self):
         #self.tcp.sendData(cmd.CMD_BACKWARD + str(self.slider_Speed.value()))
         self.setMoveSpeed(cmd.CMD_BACKWARD,self.slider_Speed.value())
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Backward_released(self):
         self.tcp.sendData(cmd.CMD_STOP)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Mode_clicked(self):
         if self.btn_Mode.text() == "VIDEO":            
             self.webView.setVisible(False)
@@ -198,50 +192,51 @@ class DemoClass(QMainWindow, Ui_MainWindow):
                 if self.t_Paint_Thread.is_alive():                    
                     #stop_thread(self.t_Paint_Thread)
                     self.t_Paint_Thread.isRun = False
-                    print "Stop_thread ... -> t_Paint_Thread", self.t_Paint_Thread.getName()                
+                    print(("Stop_thread ... -> t_Paint_Thread", self.t_Paint_Thread.getName()))                
                 if self.t_Recv_Sonic_Thread.is_alive():
                     #stop_thread(self.t_Recv_Sonic_Thread)
                     self.t_Recv_Sonic_Thread.isRun = False
-                    print "Stop_thread ... -> t_Recv_Sonic_Thread", self.t_Recv_Sonic_Thread.getName()
+                    print(("Stop_thread ... -> t_Recv_Sonic_Thread", self.t_Recv_Sonic_Thread.getName()))
                 if self.t_Scan_Sonic_Thread.is_alive():
                     #stop_thread(self.t_Scan_Sonic_Thread)
                     self.t_Scan_Sonic_Thread.isRun = False
-                    print "Stop_thread ... -> t_Scan_Sonic_Thread", self.t_Scan_Sonic_Thread.getName()
+                    print(("Stop_thread ... -> t_Scan_Sonic_Thread", self.t_Scan_Sonic_Thread.getName()))
                 self.Is_Paint_Thread_On = False
             self.btn_Mode.setText("VIDEO")
         
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Connect_clicked(self):
         if self.btn_Connect.text() == "Connect":
             server_ip = self.lineEdit_IP_Addr.text()
-            print "Connecting......", server_ip                
+            print(("Connecting......", server_ip))                
             try:
                 self.tcp.connectToServer(address = (server_ip, 12345))
-            except Exception, e:
-                print "Connect to server Faild!: Server IP is right? Server is opend?", e                
+            except Exception as e:
+                print(("Connect to server Faild!: Server IP is right? Server is opend?", e))                
                 self.msgDlg.showMessage("Connect to server Faild! \n\t1. Server IP is right? \n\t2. Server is opend?")
                 return 
-            print "Connecttion Successful !"
+            print("Connecttion Successful !")
             if self.default_Server_IP != server_ip :
                 file_Config = open("Config.txt", "w")
                 file_Config.write(server_ip)
                 file_Config.close()
-                print "default_Server_IP is Changed!"
-            self.webView.setZoomFactor(1.2)
-            self.webView.setUrl(QUrl("http://"+server_ip+":8090/javascript_simple.html"))
+                print("default_Server_IP is Changed!")                
+            self.webView.setUrl(QUrl("http://"+server_ip+":8090/javascript_simple.html"))          
             
-            #wbv_Scale = 1.2
-            #self.webView.resize(400, 300)
-            #self.webView.setZoomFactor(wbv_Scale)            
             self.lineEdit_IP_Addr.setEnabled(False)
             self.btn_Connect.setText( "DisConnect")
         elif self.btn_Connect.text() == "DisConnect":
             self.tcp.disConnect()
-            self.webView.setContentsMargins(80, -8, 0, 0)
-            self.webView.setUrl(QUrl("html/car_photo.html"))
+            self.webView.stop()
+            self.webView.setUrl(QUrl().fromLocalFile("/html/car_photo.html"))
+            #self.webView.setUrl(QUrl("file:/html/car_photo.html"))
             self.lineEdit_IP_Addr.setEnabled(True)
             self.btn_Connect.setText( "Connect")
-    
+            
+    @pyqtSlot(bool)
+    def on_webView_loadFinished(self, p0):
+        self.webView.setZoomFactor(1.2)
+
     def keyPressEvent(self,event):  
         if event.key() == Qt.Key_Up:
             self.Camera_V_Pos = self.Camera_V_Pos + self.slider_Camera.value() + self.slider_FineServo3.value()
@@ -313,44 +308,46 @@ class DemoClass(QMainWindow, Ui_MainWindow):
             self.tcp.sendData(cmd.CMD_CAMERA_STOP)
     
     def setMoveSpeed(self, CMD, spd):
-        self.tcp.sendData(CMD + str(spd/3))
+        self.tcp.sendData(CMD + str(int(spd//3)))
+        self.tcp.sendData(CMD )
         time.sleep(0.07)
-        self.tcp.sendData(CMD + str(spd/3*2))
+        self.tcp.sendData(CMD + str(int(spd//3*2)))
         time.sleep(0.07)
-        self.tcp.sendData(CMD + str(spd))
-    @pyqtSignature("int")
+        self.tcp.sendData(CMD + str(int(spd)))
+        
+    @pyqtSlot("int")
     def on_slider_Camera_valueChanged(self, value):
         self.tcp.sendData(cmd.CMD_CAMERA_SLIDER + str(value))
     
-    @pyqtSignature("int")
+    @pyqtSlot("int")
     def on_slider_Speed_valueChanged(self, value):
         pass
         #self.tcp.sendData(cmd.CMD_SPEED_SLIDER + str(value))
     
-    @pyqtSignature("int")
+    @pyqtSlot("int")
     def on_slider_Direction_valueChanged(self, value):
         pass
         #self.tcp.sendData(cmd.CMD_DIR_SLIDER + str(value))
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_RGB_R_clicked(self):
         self.tcp.sendData(cmd.CMD_RGB_R)    
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_RGB_G_clicked(self):
         self.tcp.sendData(cmd.CMD_RGB_G)    
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_RGB_B_clicked(self):
         self.tcp.sendData(cmd.CMD_RGB_B)
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Buzzer_clicked(self):
         pass
-        #self.tcp.sendData(cmd.CMD_BUZZER_ALARM)        
-    @pyqtSignature("")
+        #self.tcp.sendData(cmd.CMD_BUZZER_ALARM)
+    @pyqtSlot()
     def on_btn_Buzzer_pressed(self):
-        self.tcp.sendData(cmd.CMD_BUZZER_ALARM)        
+        self.tcp.sendData(cmd.CMD_BUZZER_ALARM+"1")        
     
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btn_Buzzer_released(self):
-        self.tcp.sendData(cmd.CMD_BUZZER_ALARM)        
+        self.tcp.sendData(cmd.CMD_BUZZER_ALARM)      
      
 class Recv_Sonic_Thread(threading.Thread):
     def __init__(self, widget):
@@ -361,11 +358,12 @@ class Recv_Sonic_Thread(threading.Thread):
     def run(self):
         #while True:
         while self.isRun:
-            sonic = self.wgt_main.tcp.recvData()
+            sonic = self.wgt_main.tcp.recvData().decode('utf-8')
+            #print(sonic, type(sonic))
             try :
                 iSonic = float(sonic)
-            except Exception, e:
-                print "Sonic Data error :", e
+            except Exception as e:
+                print(("Sonic Data error :", e))
                 iSonic = 0
             self.wgt_main.sonic_buff[self.wgt_main.sonic_Index] = iSonic
             #print iSonic  
@@ -388,7 +386,7 @@ class Scan_Sonic_Thread(threading.Thread):
         self.scan_speed = 0.05
         #print "scan Sonic...."
         for angle in range(self.min_Angle, self.max_Angle+1, self.inteval_Angle):
-            self.wgt_main.sonic_Index = angle/self.inteval_Angle
+            self.wgt_main.sonic_Index = angle//self.inteval_Angle
             self.wgt_main.Camera_H_Pos = angle
             self.wgt_main.slider_Camera_H.setValue(self.wgt_main.Camera_H_Pos)
             if self.wgt_main.mutex.acquire():
@@ -396,9 +394,9 @@ class Scan_Sonic_Thread(threading.Thread):
                 self.wgt_main.tcp.sendData(cmd.CMD_ULTRASONIC)
                 self.wgt_main.mutex.release()
             time.sleep(self.scan_speed)        
-        print self.wgt_main.sonic_buff
+        print((self.wgt_main.sonic_buff))
         for angle in range(self.max_Angle, self.min_Angle-1, -1*self.inteval_Angle):
-            self.wgt_main.sonic_Index = angle/self.inteval_Angle
+            self.wgt_main.sonic_Index = angle//self.inteval_Angle
             self.wgt_main.Camera_H_Pos = angle
             self.wgt_main.slider_Camera_H.setValue(self.wgt_main.Camera_H_Pos)
             if self.wgt_main.mutex.acquire():
@@ -406,7 +404,7 @@ class Scan_Sonic_Thread(threading.Thread):
                 self.wgt_main.tcp.sendData(cmd.CMD_ULTRASONIC)
                 self.wgt_main.mutex.release()
             time.sleep(self.scan_speed)
-        print self.wgt_main.sonic_buff  
+        print((self.wgt_main.sonic_buff))  
         
 class Piant_Thread(threading.Thread):
     #wgt_Drawing = PaintArea(QMainWindow)
@@ -427,7 +425,7 @@ class Piant_Thread(threading.Thread):
         self.inteval_Angle = 10
         #print "scan Sonic...."
         for angle in range(self.min_Angle, self.max_Angle+1, self.inteval_Angle):
-            self.wgt_main.sonic_Index = angle/self.inteval_Angle
+            self.wgt_main.sonic_Index = angle//self.inteval_Angle
             self.wgt_main.Camera_H_Pos = angle
             self.wgt_main.slider_Camera_H.setValue(self.wgt_main.Camera_H_Pos)
             if self.wgt_main.mutex.acquire():
@@ -437,9 +435,9 @@ class Piant_Thread(threading.Thread):
             #self.wgt_main.sonic_buff[angle/self.inteval_Angle] = iSonic            
             time.sleep(0.1)        
         #send_Counter = send_Counter +1
-        print self.wgt_main.sonic_buff
+        print((self.wgt_main.sonic_buff))
         for angle in range(self.max_Angle, self.min_Angle-1, -1*self.inteval_Angle):
-            self.wgt_main.sonic_Index = angle/self.inteval_Angle
+            self.wgt_main.sonic_Index = angle//self.inteval_Angle
             self.wgt_main.Camera_H_Pos = angle
             self.wgt_main.slider_Camera_H.setValue(self.wgt_main.Camera_H_Pos)
             if self.wgt_main.mutex.acquire():
@@ -448,7 +446,7 @@ class Piant_Thread(threading.Thread):
                 self.wgt_main.mutex.release()
             #self.wgt_main.sonic_buff[angle/self.inteval_Angle] = iSonic
             time.sleep(0.1)
-        print self.wgt_main.sonic_buff    
+        print((self.wgt_main.sonic_buff))    
 class PaintArea(QWidget):    
     max_range = 201
     def __init__(self, parent=None):
@@ -489,11 +487,10 @@ class PaintArea(QWidget):
                 qp.drawEllipse(orgin_X + 2*d*math.cos((min_Angle+i*10)/180.0*math.pi), orgin_Y - 2*d*math.sin((min_Angle+i*10)/180.0*math.pi), 5, 5)
         #for target_cycle in 
             
+        
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
-    dlg = DemoClass()
+    dlg = MainWindow()
     dlg.show()
     sys.exit(app.exec_())
-    
-

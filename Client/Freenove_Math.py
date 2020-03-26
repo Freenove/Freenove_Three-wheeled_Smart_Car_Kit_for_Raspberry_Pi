@@ -1,20 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
- ******************************************************************************
- * File  Freenove_Math.py
- * Author  Freenove (http://www.freenove.com)
- * Date    2016/11/14
- ******************************************************************************
- * Brief
- *   These are the global functions.
- ******************************************************************************
- * Copyright
- *   Copyright © Freenove (http://www.freenove.com)
- * License
- *   Creative Commons Attribution ShareAlike 3.0 
- *   (http://creativecommons.org/licenses/by-sa/3.0/legalcode)
- ******************************************************************************
-"""
+########################################################################
+# Filename    : Freenove_Math.py
+# Description : These are the global functions.
+# auther      : www.freenove.com
+# modification: 2020/03/26
+########################################################################
 def min(a, b):
     if a<b :
         return a

@@ -1,21 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
- ******************************************************************************
- * File  Command.py
- * Author  Freenove (http://www.freenove.com)
- * Date    2016/11/14
- ******************************************************************************
- * Brief
- *   This is sent by the client to the server command word
- ******************************************************************************
- * Copyright
- *   Copyright © Freenove (http://www.freenove.com)
- * License
- *   Creative Commons Attribution ShareAlike 3.0 
- *   (http://creativecommons.org/licenses/by-sa/3.0/legalcode)
- ******************************************************************************
-"""
-
+########################################################################
+# Filename    : Command.py
+# Description : This is sent by the client to the server command word
+# auther      : www.freenove.com
+# modification: 2020/03/26
+########################################################################
 class COMMAND:
     CMD_FORWARD = ">Move Forward"
     CMD_BACKWARD = ">Move Backward"

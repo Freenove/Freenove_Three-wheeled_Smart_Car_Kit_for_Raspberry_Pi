@@ -1,21 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
- ******************************************************************************
- * File  TCPClient.py
- * Author  Freenove (http://www.freenove.com)
- * Date    2016/11/14
- ******************************************************************************
- * Brief
- *   This is the Class TCPClient.
- ******************************************************************************
- * Copyright
- *   Copyright © Freenove (http://www.freenove.com)
- * License
- *   Creative Commons Attribution ShareAlike 3.0 
- *   (http://creativecommons.org/licenses/by-sa/3.0/legalcode)
- ******************************************************************************
-"""
-
+########################################################################
+# Filename    : TCPClient.py
+# Description : This is the Class TCPClient.
+# auther      : www.freenove.com
+# modification: 2020/03/26
+########################################################################
 
 from socket import *
 
@@ -38,19 +27,19 @@ class TCPClient:
     def disConnect(self):        
         try:
             self.client.close()
-        except Exception, e:
-            print Exception, "Disconnect error:", e
+        except Exception as e:
+            print((Exception, "Disconnect error:", e))
         
     def sendData(self, data):
         try:
-            self.client.send(data)
-        except Exception, e:
-            print Exception, "Send TCP Data error:", e
+            self.client.send(data.encode('utf-8'))
+        except Exception as e:
+            print((Exception, "Send TCP Data error:", e))
     
     def recvData(self):
         try:
             return self.client.recv(self.BUFSIZ)
-        except Exception, e:
-            print Exception, "Recv TCP Data error:", e
+        except Exception as e:
+            print((Exception, "Recv TCP Data error:", e))
         
         

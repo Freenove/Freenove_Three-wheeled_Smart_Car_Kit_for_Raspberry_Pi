@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
-"""
-"""
-"""
-Module implementing Web Server Client for Scratch Extension.
-"""
-from PyQt4.QtCore import *
-from PyQt4 import  QtGui, QtCore
-from PyQt4.QtGui import *
-from PyQt4.QtCore import pyqtSignature
-from PyQt4.QtGui import (QApplication, QMainWindow, QGraphicsScene)
+########################################################################
+# Filename    : ScratchServer.py
+# Description : Module implementing Web Server Client for Scratch Extension.
+# auther      : www.freenove.com
+# modification: 2020/03/26
+########################################################################
+
+
+from PyQt5 import QtCore, QtGui  #, QtWebEngineWidgets
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QGraphicsScene, QWidget)
+
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 from TCPClient import TCPClient
 from Command import COMMAND as cmd
@@ -21,8 +25,8 @@ import threading
 import math
 #import copy
 from CloseThreading import *
-import BaseHTTPServer, SimpleHTTPServer
-from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+import http.server, http.server
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 class ScratchServer(BaseHTTPRequestHandler):
     tcp = TCPClient()
@@ -40,7 +44,7 @@ class ScratchServer(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(self.parsePath(self.path))
+        self.wfile.write(self.parsePath(self.path).encode('utf-8'))
 
     def parsePath(self, path):
         pathParts = path.split('/')
@@ -110,11 +114,11 @@ class ScratchServer(BaseHTTPRequestHandler):
         return ScratchServer.lastError
 
     def lastMessage(self):
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     def getLastError(self):
-        print ScratchServer.lastError
+        print(ScratchServer.lastError)
         return ScratchServer.lastError
 
     def getXDomainResponse(self):
@@ -126,7 +130,7 @@ class ScratchServer(BaseHTTPRequestHandler):
     def poll(self):
         ScratchServer.msg = "sonic " + str(ScratchServer.iSonic)
         if ScratchServer.lastError != "": ScratchServer.msg += "\nERROR: " + ScratchServer.lastError
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
@@ -136,9 +140,9 @@ class ScratchServer(BaseHTTPRequestHandler):
             ScratchServer.Camera_H_Pos = 90
             self.tcp.sendData(cmd.CMD_CAMERA_UP + str(ScratchServer.Camera_V_Pos))
             self.tcp.sendData(cmd.CMD_CAMERA_LEFT + str(ScratchServer.Camera_H_Pos))
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         return ""
@@ -146,44 +150,45 @@ class ScratchServer(BaseHTTPRequestHandler):
     
     def resetAll(self):
         try:
-            print "returning crossdomain.xml"
+            print("returning crossdomain.xml")
             self.centerCamera(0)
             self.stop()
             self.center(0)
             self.buzz(1000)
             return "Reset Complete"
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
 
     
     def connect2Car(self, server_ip):
-        print "Connecting......", server_ip 
+        print("Connecting......", server_ip) 
         try:
-            self.tcp.connectToServer(address = (server_ip, 12345))
-        except Exception, e:
-            ScratchServer.lastError = "Connect to server " + server_ip + " Failed!: " + e.message
-            print ScratchServer.lastError
+            self.tcp.connectToServer(address = (str(server_ip), 12345))
+        except Exception as e:
+            #print(type(server_ip),type(e))
+            ScratchServer.lastError =  e#"Connect to server " + server_ip + " Failed!: " +
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Connection Successful !"
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
     def disconnectFromCar(self):
         try:
             self.tcp.disConnect()
-            print "Disconnection Successful !"
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+            print("Disconnection Successful !")
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Disconnected"
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
@@ -195,15 +200,15 @@ class ScratchServer(BaseHTTPRequestHandler):
                 self.tcp.sendData(cmd.CMD_ULTRASONIC)
                 sonic = self.tcp.recvData()
             ScratchServer.iSonic = float(sonic)
-        except Exception, e:
+        except Exception as e:
             ScratchServer.msg = "Sonic Data error :\n" + e
             ScratchServer.lastError = ScratchServer.msg
-            print ScratchServer.msg
+            print(ScratchServer.msg)
             ScratchServer.iSonic = 0
             return ScratchServer.msg
 
         ScratchServer.msg = "distance received: " + str(ScratchServer.iSonic)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return str(ScratchServer.iSonic)
    
     
@@ -214,13 +219,13 @@ class ScratchServer(BaseHTTPRequestHandler):
             ScratchServer.Camera_V_Pos = 90 + angle
             ScratchServer.Camera_V_Pos = constrain(ScratchServer.Camera_V_Pos, self.SERVO_MIN_ANGLE, self.SERVO_MAX_ANGLE)
             self.tcp.sendData(cmd.CMD_CAMERA_UP + str(ScratchServer.Camera_V_Pos))
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Camera V moved up to " + str(ScratchServer.Camera_V_Pos)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
    
     
@@ -230,13 +235,13 @@ class ScratchServer(BaseHTTPRequestHandler):
             ScratchServer.Camera_V_Pos = 90 - angle
             ScratchServer.Camera_V_Pos = constrain(ScratchServer.Camera_V_Pos, 80, self.SERVO_MAX_ANGLE)
             self.tcp.sendData(cmd.CMD_CAMERA_DOWN + str(ScratchServer.Camera_V_Pos))        
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Camera V moved down to " + str(ScratchServer.Camera_V_Pos)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
@@ -246,13 +251,13 @@ class ScratchServer(BaseHTTPRequestHandler):
             ScratchServer.Camera_H_Pos = 90 + angle
             ScratchServer.Camera_H_Pos = constrain(ScratchServer.Camera_H_Pos, self.SERVO_MIN_ANGLE, self.SERVO_MAX_ANGLE)
             self.tcp.sendData(cmd.CMD_CAMERA_LEFT + str(ScratchServer.Camera_H_Pos))
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Camera h moved LEFT to " + str(ScratchServer.Camera_H_Pos)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
@@ -262,13 +267,13 @@ class ScratchServer(BaseHTTPRequestHandler):
             ScratchServer.Camera_H_Pos =  90 - angle
             ScratchServer.Camera_H_Pos = constrain(ScratchServer.Camera_H_Pos, self.SERVO_MIN_ANGLE, self.SERVO_MAX_ANGLE)
             self.tcp.sendData(cmd.CMD_CAMERA_RIGHT + str(ScratchServer.Camera_H_Pos))
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Camera h moved RIGHT to " + str(ScratchServer.Camera_H_Pos)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
@@ -276,10 +281,10 @@ class ScratchServer(BaseHTTPRequestHandler):
         try:
             self.tcp.sendData(cmd.CMD_RGB_R)  
             ScratchServer.msg = "Light to Red"
-            print ScratchServer.msg
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+            print(ScratchServer.msg)
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         return ScratchServer.msg
@@ -289,10 +294,10 @@ class ScratchServer(BaseHTTPRequestHandler):
         try:
             self.tcp.sendData(cmd.CMD_RGB_G)    
             ScratchServer.msg = "Light to Green"
-            print ScratchServer.msg
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+            print(ScratchServer.msg)
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         return ScratchServer.msg
@@ -302,10 +307,10 @@ class ScratchServer(BaseHTTPRequestHandler):
         try:
             self.tcp.sendData(cmd.CMD_RGB_B)
             ScratchServer.msg = "Light to Blue"
-            print ScratchServer.msg
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+            print(ScratchServer.msg)
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         return ScratchServer.msg
@@ -314,61 +319,59 @@ class ScratchServer(BaseHTTPRequestHandler):
     def buzz(self, duration):
         try:
             duration = int(duration)
-            print "Buzzing started"
-            self.tcp.sendData(cmd.CMD_BUZZER_ALARM)        
+            print("Buzzing started")
+            self.tcp.sendData(cmd.CMD_BUZZER_ALARM+"1")        
             time.sleep(float(duration) / 1000)
-            self.tcp.sendData(cmd.CMD_BUZZER_ALARM)        
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+            self.tcp.sendData(cmd.CMD_BUZZER_ALARM+"0")        
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Buzzed for " + str(duration) + "ms"
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
     def moveForward(self, speed):
         try:
             speed = int(speed)
-            print "Moving Forward"
+            print("Moving Forward")
             self.setMoveSpeed(cmd.CMD_FORWARD, speed)
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Moving forward at speed " + str(speed)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
-
-    
     def moveBackward(self, speed):
         try:
             speed = int(speed)
-            print "Moving Backward"
+            print("Moving Backward")
             self.setMoveSpeed(cmd.CMD_BACKWARD, speed)
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Moving Backward at speed " + str(speed)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
     def stop(self):
         try:
-            print "Stopping"
+            print("Stopping")
             self.tcp.sendData(cmd.CMD_STOP)
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Stopped"
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
@@ -377,15 +380,15 @@ class ScratchServer(BaseHTTPRequestHandler):
             speed = int(speed)
             duration = int(duration)
 
-            print "Stepping Forward"
+            print("Stepping Forward")
             self.setMoveSpeed(cmd.CMD_FORWARD, speed)
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Stepping forward at speed " + str(speed)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         time.sleep(float(duration) / 1000)
         self.tcp.sendData(cmd.CMD_STOP)
         ScratchServer.msg2 = "Stopped moving after " + str(duration) + "ms"
@@ -397,15 +400,15 @@ class ScratchServer(BaseHTTPRequestHandler):
         try:
             speed = int(speed)
             duration = int(duration)
-            print "Stepping Backward"
+            print("Stepping Backward")
             self.setMoveSpeed(cmd.CMD_BACKWARD, speed)
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Stepping Backward at speed " + str(speed)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         time.sleep(float(duration) / 1000)
         self.tcp.sendData(cmd.CMD_STOP)
         ScratchServer.msg2 = "Stopped moving after " + str(duration) + "ms"
@@ -416,44 +419,44 @@ class ScratchServer(BaseHTTPRequestHandler):
     def turnLeft(self, angle):
         try:
             angle = int(angle)
-            print "Turning Left"
+            print("Turning Left")
             self.tcp.sendData(cmd.CMD_TURN_LEFT + str(angle))
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Turned Left to " + str(angle)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
     def center(self):
         try:
-            print "Centering"
+            print("Centering")
             self.tcp.sendData(cmd.CMD_TURN_CENTER + str(90))
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Centered"
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
     
     def turnRight(self, angle):
         try:
             angle = int(angle)
-            print "Turning Right"
+            print("Turning Right")
             self.tcp.sendData(cmd.CMD_TURN_RIGHT + str(angle))
-        except Exception, e:
-            ScratchServer.lastError = "Error: " + e.message
-            print ScratchServer.lastError
+        except Exception as e:
+            ScratchServer.lastError = "Error: " + e
+            print(ScratchServer.lastError)
             return ScratchServer.lastError
 
         ScratchServer.msg = "Turned Right to " + str(angle)
-        print ScratchServer.msg
+        print(ScratchServer.msg)
         return ScratchServer.msg
 
             
@@ -466,7 +469,7 @@ class ScratchServer(BaseHTTPRequestHandler):
      
             
 ScratchServer.iSonic = 0
-httpd = HTTPServer(('localhost', 8085), ScratchServer)
+httpd = HTTPServer(('127.0.0.1', 8085), ScratchServer)
 
 httpd.serve_forever()
     

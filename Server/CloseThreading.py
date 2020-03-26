@@ -22,13 +22,13 @@ def stop_thread(thread):
  
 class TestThread(threading.Thread):
     def run(self):
-        print "begin"
+        print("begin")
         while True:
             time.sleep(0.1)
-        print "end"
+        print("end")
 if __name__ == "__main__":
     t = TestThread()
     t.start()
     time.sleep(1)
     stop_thread(t)
-    print "stoped"
+    print("stoped")

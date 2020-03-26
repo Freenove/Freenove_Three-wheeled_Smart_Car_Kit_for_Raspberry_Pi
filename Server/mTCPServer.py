@@ -1,31 +1,15 @@
 #-*- coding: utf-8 -*-
-"""
- ******************************************************************************
- * File  mTCPServer.py
- * Author  Freenove (http://www.freenove.com)
- * Date    2020/03/23
- ******************************************************************************
- * Brief
- *   This is the Class mTCPServer.
- ******************************************************************************
- * Copyright
- *   Copyright © Freenove (http://www.freenove.com)
- * License
- *   Creative Commons Attribution ShareAlike 3.0 
- *   (http://creativecommons.org/licenses/by-sa/3.0/legalcode)
- ******************************************************************************
-"""
+########################################################################
+# Filename    : mTCPServer.py
+# Description : This is the Class mTCPServer.
+# auther      : www.freenove.com
+# modification: 2020/03/26
+########################################################################
 from socket import *
 import threading
 from Command import COMMAND as cmd
 from mDev import *
 mdev = mDEV()
-#####################################################
-#If your servo rotation is inverted, please set the corresponding value to True
-servo1_reversed = False        # True or False
-servo2_reversed = False        # True or False
-servo3_reversed = False        # True or False
-#####################################################
 class mTCPServer(threading.Thread):
     HOST = ''
     PORT = 12345
@@ -46,8 +30,8 @@ class mTCPServer(threading.Thread):
         self.sock = socket(AF_INET, SOCK_STREAM)
         try:
             self.sock.bind(self.ADDR)
-        except Exception,e:
-            print "Bind Error : ",e
+        except Exception as e:
+            print("Bind Error : ",e)
             self.tcpClientSock, self.addr = self.sock.accept()
             self.sock.bind(self.ADDR)
         self.sock.listen(1)        
@@ -56,131 +40,113 @@ class mTCPServer(threading.Thread):
         #self.t.start()
         
         #self.t.setDaemon(True)
-        print "TCP Server Thread Starting ... "
+        print("TCP Server Thread Starting ... ")
 
     def tcpLink(self):
         while True:
-            print "Wating for connect ... "
+            print("Wating for connect ... ")
             try:
                 self.tcpClientSock, self.addr = self.sock.accept()
-                print "Connect from ", self.addr
-            except Exception ,  e:
-                print "sock closed! Error: ",e
+                print("Connect from ", self.addr)
+            except Exception as  e:
+                print("sock closed! Error: ",e)
                 try:
                     self.tcpClientSock.close()
-                except Exception ,  e:
-                    print "Client close Error",e
+                except Exception as  e:
+                    print("Client close Error",e)
                 self.sock.shutdown(2)
                 self.sock.close()             
                 break           
             
             while True:
                 try:
-                    RecvData_ALL = self.tcpClientSock.recv(self.BUFSIZ)
-                except Exception ,  e:
-                    print e
+                    RecvData_ALL = self.tcpClientSock.recv(self.BUFSIZ).decode('utf-8')
+                except Exception as  e:
+                    print(e)
                     self.tcpClientSock.close()
                     break
                 if not RecvData_ALL:
                     break
-                #print RecvData_ALL
+                #print(type(RecvData_ALL),RecvData_ALL)
                 RecvData_Array = RecvData_ALL.split(">")
-                print RecvData_Array
+                print(RecvData_Array)
                 for RecvData in RecvData_Array:                    
                     if RecvData == "":
                         continue
-                    print "RecvData  : ", RecvData
-                    if cmd.CMD_FORWARD[1:]  in RecvData:
+                    print("RecvData  : ", RecvData)
+                    if cmd.CMD_FORWARD[1:] in RecvData:
                         try:
-                            value = int(filter(str.isdigit, RecvData))
-                        except Exception,e:
-                            print e
+                            value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        except Exception as e:
+                            print(e)
                             continue
                         mdev.writeReg(mdev.CMD_DIR1,1)
                         mdev.writeReg(mdev.CMD_DIR2,1)
                         mdev.writeReg(mdev.CMD_PWM1,value*10)
                         mdev.writeReg(mdev.CMD_PWM2,value*10)
                     elif cmd.CMD_BACKWARD[1:]   in RecvData:
-                        value = int(filter(str.isdigit, RecvData))
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
                         mdev.writeReg(mdev.CMD_DIR1,0)
                         mdev.writeReg(mdev.CMD_DIR2,0)
                         mdev.writeReg(mdev.CMD_PWM1,value*10)
                         mdev.writeReg(mdev.CMD_PWM2,value*10)
                         pass
                     elif cmd.CMD_TURN_LEFT[1:]   in RecvData:
-                        value = int(filter(str.isdigit, RecvData))
-                        if servo1_reversed is True:
-                            mdev.writeReg(mdev.CMD_SERVO1,numMap(90-value,0,180,500,2500))
-                        else:
-                            mdev.writeReg(mdev.CMD_SERVO1,numMap(90+value,0,180,500,2500))
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        mdev.writeReg(mdev.CMD_SERVO1,numMap(90+value,0,180,500,2500))
                         pass
                     elif cmd.CMD_TURN_RIGHT[1:]   in RecvData:
-                        value = int(filter(str.isdigit, RecvData))
-                        if servo1_reversed is True:
-                            mdev.writeReg(mdev.CMD_SERVO1,numMap(90+value,0,180,500,2500))
-                        else:
-                            mdev.writeReg(mdev.CMD_SERVO1,numMap(90-value,0,180,500,2500))
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        mdev.writeReg(mdev.CMD_SERVO1,numMap(90-value,0,180,500,2500))
                         pass
                     elif cmd.CMD_STOP[1:]   in RecvData:
                         mdev.writeReg(mdev.CMD_PWM1,0)
                         mdev.writeReg(mdev.CMD_PWM2,0)
                         pass
                     elif cmd.CMD_TURN_CENTER[1:]   in RecvData:
-                        value = int(filter(str.isdigit, RecvData))
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
                         mdev.writeReg(mdev.CMD_SERVO1,numMap(value,0,180,500,2500))
                         pass
                     elif cmd.CMD_CAMERA_UP[1:]   in RecvData:
-                        value = int(filter(str.isdigit, RecvData))
-                        if servo3_reversed is True:
-                            mdev.writeReg(mdev.CMD_SERVO3,numMap(180-value,0,180,500,2500))
-                        else:
-                            mdev.writeReg(mdev.CMD_SERVO3,numMap(value,0,180,500,2500))
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        mdev.writeReg(mdev.CMD_SERVO3,numMap(value,0,180,500,2500))
                         pass
                     elif cmd.CMD_CAMERA_DOWN[1:]   in RecvData:
-                        value = int(filter(str.isdigit, RecvData))
-                        if servo3_reversed is True:
-                            mdev.writeReg(mdev.CMD_SERVO3,numMap(180-value,0,180,500,2500))
-                        else:
-                            mdev.writeReg(mdev.CMD_SERVO3,numMap(value,0,180,500,2500))
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        mdev.writeReg(mdev.CMD_SERVO3,numMap(value,0,180,500,2500))
                         pass
                     elif cmd.CMD_CAMERA_LEFT[1:]   in RecvData:
-                        value = int(filter(str.isdigit, RecvData))
-                        if servo2_reversed is True:
-                            mdev.writeReg(mdev.CMD_SERVO2,numMap(180-value,0,180,500,2500))
-                        else:
-                            mdev.writeReg(mdev.CMD_SERVO2,numMap(value,0,180,500,2500))
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        mdev.writeReg(mdev.CMD_SERVO2,numMap(value,0,180,500,2500))
                         pass
                     elif cmd.CMD_CAMERA_RIGHT[1:]   in RecvData:
-                        value = int(filter(str.isdigit, RecvData))
-                        if servo2_reversed is True:
-                            mdev.writeReg(mdev.CMD_SERVO2,numMap(180-value,0,180,500,2500))
-                        else:
-                            mdev.writeReg(mdev.CMD_SERVO2,numMap(value,0,180,500,2500))
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        mdev.writeReg(mdev.CMD_SERVO2,numMap(value,0,180,500,2500))
                         pass
                     elif cmd.CMD_CAMERA_STOP[1:]   in RecvData:
                         pass
                     elif cmd.CMD_CAMERA_CENTER[1:]   in RecvData:
                         pass
                     elif cmd.CMD_SPEED_SLIDER[1:]  in RecvData:
-                        value = int(filter(str.isdigit, RecvData))
-                        print value
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        print(value)
                         pass
                     elif cmd.CMD_DIR_SLIDER[1:]   in RecvData :
-                        value = int(filter(str.isdigit, RecvData))
-                        print value
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        print(value)
                         pass
                     elif cmd.CMD_CAMERA_SLIDER[1:]   in RecvData :
-                        value = int(filter(str.isdigit, RecvData))
-                        print value  
+                        value = int("0"+"".join(filter(str.isdigit, RecvData)))
+                        print(value)  
                     elif cmd.CMD_BUZZER_ALARM[1:]  in RecvData:
                         try:
-                            value = int(filter(str.isdigit, RecvData))
+                            value = int("0"+"".join(filter(str.isdigit, RecvData)))
                             if value != 0:
                                 mdev.writeReg(mdev.CMD_BUZZER,2000)
                             elif value == 0:                    
                                 mdev.writeReg(mdev.CMD_BUZZER,0)
-                        except Exception ,  e:
-                            print "Command without parameters"
+                        except Exception as  e:
+                            print("Command without parameters")
                             if mdev.Is_Buzzer_State_True is True:
                                 mdev.Is_Buzzer_State_True = False
                                 mdev.writeReg(mdev.CMD_BUZZER,0)
@@ -217,13 +183,13 @@ class mTCPServer(threading.Thread):
         pass
         try:
             self.tcpClientSock.close()
-        except Exception ,  e:
-            print "Client close Error",e
+        except Exception as  e:
+            print("Client close Error",e)
         self.sock.shutdown(2)
         self.sock.close()
         
     def sendData(self, data):
-        self.tcpClientSock.send(data)
+        self.tcpClientSock.send(data.encode('utf-8'))
         
 if __name__ == "__main__":
     import sys
