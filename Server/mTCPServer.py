@@ -10,6 +10,12 @@ import threading
 from Command import COMMAND as cmd
 from mDev import *
 mdev = mDEV()
+#####################################################
+#If your servo rotation is inverted, please set the corresponding value to True
+servo1_reversed = False        # True or False
+servo2_reversed = False        # True or False
+servo3_reversed = False        # True or False
+#####################################################
 class mTCPServer(threading.Thread):
     HOST = ''
     PORT = 12345
@@ -93,11 +99,18 @@ class mTCPServer(threading.Thread):
                         pass
                     elif cmd.CMD_TURN_LEFT[1:]   in RecvData:
                         value = int("0"+"".join(filter(str.isdigit, RecvData)))
-                        mdev.writeReg(mdev.CMD_SERVO1,numMap(90+value,0,180,500,2500))
+                        if servo1_reversed is True:
+                            mdev.writeReg(mdev.CMD_SERVO1,numMap(90-value,0,180,500,2500))
+                        else:
+                            mdev.writeReg(mdev.CMD_SERVO1,numMap(90+value,0,180,500,2500))
                         pass
+                      
                     elif cmd.CMD_TURN_RIGHT[1:]   in RecvData:
                         value = int("0"+"".join(filter(str.isdigit, RecvData)))
-                        mdev.writeReg(mdev.CMD_SERVO1,numMap(90-value,0,180,500,2500))
+                        if servo1_reversed is True:
+                            mdev.writeReg(mdev.CMD_SERVO1,numMap(90+value,0,180,500,2500))
+                        else:
+                            mdev.writeReg(mdev.CMD_SERVO1,numMap(90-value,0,180,500,2500))
                         pass
                     elif cmd.CMD_STOP[1:]   in RecvData:
                         mdev.writeReg(mdev.CMD_PWM1,0)
@@ -109,19 +122,31 @@ class mTCPServer(threading.Thread):
                         pass
                     elif cmd.CMD_CAMERA_UP[1:]   in RecvData:
                         value = int("0"+"".join(filter(str.isdigit, RecvData)))
-                        mdev.writeReg(mdev.CMD_SERVO3,numMap(value,0,180,500,2500))
+                        if servo3_reversed is True:
+                            mdev.writeReg(mdev.CMD_SERVO3,numMap(180-value,0,180,500,2500))
+                        else:
+                            mdev.writeReg(mdev.CMD_SERVO3,numMap(value,0,180,500,2500))
                         pass
                     elif cmd.CMD_CAMERA_DOWN[1:]   in RecvData:
                         value = int("0"+"".join(filter(str.isdigit, RecvData)))
-                        mdev.writeReg(mdev.CMD_SERVO3,numMap(value,0,180,500,2500))
+                        if servo3_reversed is True:
+                            mdev.writeReg(mdev.CMD_SERVO3,numMap(180-value,0,180,500,2500))
+                        else:
+                            mdev.writeReg(mdev.CMD_SERVO3,numMap(value,0,180,500,2500))
                         pass
                     elif cmd.CMD_CAMERA_LEFT[1:]   in RecvData:
                         value = int("0"+"".join(filter(str.isdigit, RecvData)))
-                        mdev.writeReg(mdev.CMD_SERVO2,numMap(value,0,180,500,2500))
+                        if servo2_reversed is True:
+                            mdev.writeReg(mdev.CMD_SERVO2,numMap(180-value,0,180,500,2500))
+                        else:
+                            mdev.writeReg(mdev.CMD_SERVO2,numMap(value,0,180,500,2500))
                         pass
                     elif cmd.CMD_CAMERA_RIGHT[1:]   in RecvData:
                         value = int("0"+"".join(filter(str.isdigit, RecvData)))
-                        mdev.writeReg(mdev.CMD_SERVO2,numMap(value,0,180,500,2500))
+                        if servo2_reversed is True:
+                            mdev.writeReg(mdev.CMD_SERVO2,numMap(180-value,0,180,500,2500))
+                        else:
+                            mdev.writeReg(mdev.CMD_SERVO2,numMap(value,0,180,500,2500))
                         pass
                     elif cmd.CMD_CAMERA_STOP[1:]   in RecvData:
                         pass
