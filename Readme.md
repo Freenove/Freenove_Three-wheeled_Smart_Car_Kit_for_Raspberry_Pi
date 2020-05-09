@@ -7,7 +7,7 @@
 * **Use command in terminal**
 
     Run following command to download all the files in this repository.
-  git clone --depth 1 https://github.com/Freenove/Freenove_Three-wheeled_Smart_Car_Kit_for_Raspberry_Pi.git
+  `git clone --depth 1 https://github.com/Freenove/Freenove_Three-wheeled_Smart_Car_Kit_for_Raspberry_Pi.git`
   
 * **Manually download in browser**
 
