@@ -1,6 +1,6 @@
 ## Freenove Three-wheeled Smart Car Kit for Raspberry Pi
 
-> A three-wheeled car kit for learnning Raspberry Pi.
+> A three-wheeled car kit for learning Raspberry Pi.
 
 ### Download
 
