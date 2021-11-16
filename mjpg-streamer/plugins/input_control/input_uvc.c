@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-#include <linux/videodev2.h>
+#include <linux/videodev.h>
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <signal.h>
@@ -88,12 +88,11 @@ int input_init(input_parameter *param, int id)
     pglobal = param->global;
 
     /* allocate webcam datastructure */
-    this = malloc(sizeof(struct input_uvc));
+    this = calloc(sizeof(struct input_uvc));
     if(this == NULL) {
         IPRINT("not enough memory for videoIn\n");
         exit(EXIT_FAILURE);
     }
-    memset(this, 0, sizeof(struct input_uvc));
     this->min_res = MIN_RES;
 
     /* display the parsed values */
@@ -424,7 +423,7 @@ Return Value: unused, always NULL
 ******************************************************************************/
 void *cam_thread(void *arg)
 {
-    /* set cleanup handler to cleanup allocated ressources */
+    /* set cleanup handler to cleanup allocated resources */
     pthread_cleanup_push(cam_cleanup, NULL);
 
     while(!pglobal->stop) {
@@ -450,7 +449,7 @@ void cam_cleanup(void *arg)
     static unsigned char first_run = 1;
 
     if(!first_run) {
-        DBG("already cleaned up ressources\n");
+        DBG("already cleaned up resources\n");
         return;
     }
 

@@ -40,6 +40,7 @@ struct _output_parameter {
 typedef struct _output output;
 struct _output {
     char *plugin;
+    char *name;
     void *handle;
     output_parameter param;
 
@@ -50,6 +51,6 @@ struct _output {
     int (*init)(output_parameter *param, int id);
     int (*stop)(int);
     int (*run)(int);
-    int (*cmd)(int plugin, unsigned int control_id, unsigned int group, int value);
+    int (*cmd)(int plugin, unsigned int control_id, unsigned int group, int value, char *value_str);
 };
 

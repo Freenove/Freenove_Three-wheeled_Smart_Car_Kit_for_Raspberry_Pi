@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <linux/videodev2.h>
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <signal.h>
@@ -37,6 +36,8 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <syslog.h>
+#include <linux/types.h>          /* for videodev2.h */
+#include <linux/videodev2.h>
 
 #include "utils.h"
 #include "mjpg_streamer.h"
@@ -49,7 +50,7 @@ Description.: Display a help message
 Input Value.: argv[0] is the program name and the parameter progname
 Return Value: -
 ******************************************************************************/
-void help(char *progname)
+static void help(char *progname)
 {
     fprintf(stderr, "-----------------------------------------------------------------------\n");
     fprintf(stderr, "Usage: %s\n" \
@@ -89,7 +90,7 @@ Description.: pressing CTRL+C sends signals to this process instead of just
 Input Value.: sig tells us which signal was received
 Return Value: -
 ******************************************************************************/
-void signal_handler(int sig)
+static void signal_handler(int sig)
 {
     int i;
 
@@ -102,12 +103,21 @@ void signal_handler(int sig)
     LOG("force cancellation of threads and cleanup resources\n");
     for(i = 0; i < global.incnt; i++) {
         global.in[i].stop(i);
+        /*for (j = 0; j<MAX_PLUGIN_ARGUMENTS; j++) {
+            if (global.in[i].param.argv[j] != NULL) {
+                free(global.in[i].param.argv[j]);
+            }
+        }*/
     }
 
     for(i = 0; i < global.outcnt; i++) {
         global.out[i].stop(global.out[i].param.id);
         pthread_cond_destroy(&global.in[i].db_update);
         pthread_mutex_destroy(&global.in[i].db);
+        /*for (j = 0; j<MAX_PLUGIN_ARGUMENTS; j++) {
+            if (global.out[i].param.argv[j] != NULL)
+                free(global.out[i].param.argv[j]);
+        }*/
     }
     usleep(1000 * 1000);
 
@@ -117,9 +127,10 @@ void signal_handler(int sig)
     }
 
     for(i = 0; i < global.outcnt; i++) {
-        /* skip = 0;
+        int j, skip = 0;
         DBG("about to decrement usage counter for handle of %s, id #%02d, handle: %p\n", \
             global.out[i].plugin, global.out[i].param.id, global.out[i].handle);
+
         for(j=i+1; j<global.outcnt; j++) {
           if ( global.out[i].handle == global.out[j].handle ) {
             DBG("handles are pointing to the same destination (%p == %p)\n", global.out[i].handle, global.out[j].handle);
@@ -131,7 +142,7 @@ void signal_handler(int sig)
         }
 
         DBG("closing handle %p\n", global.out[i].handle);
-        */
+
         dlclose(global.out[i].handle);
     }
     DBG("all plugin handles closed\n");
@@ -143,7 +154,7 @@ void signal_handler(int sig)
     return;
 }
 
-int split_parameters(char *parameter_string, int *argc, char **argv)
+static int split_parameters(char *parameter_string, int *argc, char **argv)
 {
     int count = 1;
     argv[0] = NULL; // the plugin may set it to 'INPUT_PLUGIN_NAME'
@@ -167,6 +178,7 @@ int split_parameters(char *parameter_string, int *argc, char **argv)
                 }
             }
         }
+        free(arg);
     }
     *argc = count;
     return 1;
@@ -182,86 +194,58 @@ int main(int argc, char *argv[])
     //char *input  = "input_uvc.so --resolution 640x480 --fps 5 --device /dev/video0";
     char *input[MAX_INPUT_PLUGINS];
     char *output[MAX_OUTPUT_PLUGINS];
-    int daemon = 0, i;
+    int daemon = 0, i, j;
     size_t tmp = 0;
 
     output[0] = "output_http.so --port 8080";
     global.outcnt = 0;
-
+    global.incnt = 0;
 
     /* parameter parsing */
     while(1) {
-        int option_index = 0, c = 0;
+        int c = 0;
         static struct option long_options[] = {
-            {"h", no_argument, 0, 0
-            },
-            {"help", no_argument, 0, 0},
-            {"i", required_argument, 0, 0},
-            {"input", required_argument, 0, 0},
-            {"o", required_argument, 0, 0},
-            {"output", required_argument, 0, 0},
-            {"v", no_argument, 0, 0},
-            {"version", no_argument, 0, 0},
-            {"b", no_argument, 0, 0},
-            {"background", no_argument, 0, 0},
-            {0, 0, 0, 0}
+            {"help", no_argument, NULL, 'h'},
+            {"input", required_argument, NULL, 'i'},
+            {"output", required_argument, NULL, 'o'},
+            {"version", no_argument, NULL, 'v'},
+            {"background", no_argument, NULL, 'b'},
+            {NULL, 0, NULL, 0}
         };
 
-        c = getopt_long_only(argc, argv, "", long_options, &option_index);
+        c = getopt_long(argc, argv, "hi:o:vb", long_options, NULL);
 
         /* no more options to parse */
         if(c == -1) break;
 
-        /* unrecognized option */
-        if(c == '?') {
-            help(argv[0]);
-            return 0;
-        }
-
-        switch(option_index) {
-            /* h, help */
-        case 0:
-        case 1:
-            help(argv[0]);
-            return 0;
-            break;
-
-            /* i, input */
-        case 2:
-        case 3:
+        switch(c) {
+        case 'i':
             input[global.incnt++] = strdup(optarg);
             break;
 
-            /* o, output */
-        case 4:
-        case 5:
+        case 'o':
             output[global.outcnt++] = strdup(optarg);
             break;
 
-            /* v, version */
-        case 6:
-        case 7:
-            printf("MJPG Streamer Version: %s\n" \
-            "Compilation Date.....: %s\n" \
-            "Compilation Time.....: %s\n",
-#ifdef SVN_REV
-            SVN_REV,
+        case 'v':
+            printf("MJPG Streamer Version: %s\n",
+#ifdef GIT_HASH
+            GIT_HASH
 #else
-            SOURCE_VERSION,
+            SOURCE_VERSION
 #endif
-            __DATE__, __TIME__);
+            );
             return 0;
             break;
 
-            /* b, background */
-        case 8:
-        case 9:
+        case 'b':
             daemon = 1;
             break;
 
+        case 'h': /* fall through */
         default:
             help(argv[0]);
-            return 0;
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -289,8 +273,8 @@ int main(int argc, char *argv[])
      * messages like the following will only be visible on your terminal
      * if not running in daemon mode
      */
-#ifdef SVN_REV
-    LOG("MJPG Streamer Version: svn rev: %s\n", SVN_REV);
+#ifdef GIT_HASH
+    LOG("MJPG Streamer Version: git rev: %s\n", GIT_HASH);
 #else
     LOG("MJPG Streamer Version.: %s\n", SOURCE_VERSION);
 #endif
@@ -317,6 +301,7 @@ int main(int argc, char *argv[])
 
         tmp = (size_t)(strchr(input[i], ' ') - input[i]);
         global.in[i].stop      = 0;
+        global.in[i].context   = NULL;
         global.in[i].buf       = NULL;
         global.in[i].size      = 0;
         global.in[i].plugin = (tmp > 0) ? strndup(input[i], tmp) : strdup(input[i]);
@@ -348,6 +333,11 @@ int main(int argc, char *argv[])
         global.in[i].cmd = dlsym(global.in[i].handle, "input_cmd");
 
         global.in[i].param.parameters = strchr(input[i], ' ');
+
+        for (j = 0; j<MAX_PLUGIN_ARGUMENTS; j++) {
+            global.in[i].param.argv[j] = NULL;
+        }
+
         split_parameters(global.in[i].param.parameters, &global.in[i].param.argc, global.in[i].param.argv);
         global.in[i].param.global = &global;
         global.in[i].param.id = i;
@@ -392,6 +382,10 @@ int main(int argc, char *argv[])
         global.out[i].cmd = dlsym(global.out[i].handle, "output_cmd");
 
         global.out[i].param.parameters = strchr(output[i], ' ');
+
+        for (j = 0; j<MAX_PLUGIN_ARGUMENTS; j++) {
+            global.out[i].param.argv[j] = NULL;
+        }
         split_parameters(global.out[i].param.parameters, &global.out[i].param.argc, global.out[i].param.argv);
 
         global.out[i].param.global = &global;
@@ -399,7 +393,7 @@ int main(int argc, char *argv[])
         if(global.out[i].init(&global.out[i].param, i)) {
             LOG("output_init() return value signals to exit\n");
             closelog();
-            exit(0);
+            exit(EXIT_FAILURE);
         }
     }
 
