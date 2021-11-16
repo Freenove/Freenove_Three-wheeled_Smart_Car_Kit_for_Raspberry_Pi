@@ -34,7 +34,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <linux/videodev2.h>
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <signal.h>
@@ -55,13 +54,6 @@
 #include "../../mjpg_streamer.h"
 
 #define OUTPUT_PLUGIN_NAME "UDP output plugin"
-
-enum RTSP_State {
-    RTSP_State_Setup,
-    RTSP_State_Playing,
-    RTSP_State_Paused,
-    RTSP_State_Teardown,
-};
 
 static pthread_t worker;
 static globals *pglobal;
@@ -94,7 +86,7 @@ void help(void)
 }
 
 /******************************************************************************
-Description.: clean up allocated ressources
+Description.: clean up allocated resources
 Input Value.: unused argument
 Return Value: -
 ******************************************************************************/
@@ -103,12 +95,12 @@ void worker_cleanup(void *arg)
     static unsigned char first_run = 1;
 
     if(!first_run) {
-        DBG("already cleaned up ressources\n");
+        DBG("already cleaned up resources\n");
         return;
     }
 
     first_run = 0;
-    OPRINT("cleaning up ressources allocated by worker thread\n");
+    OPRINT("cleaning up resources allocated by worker thread\n");
 
     if(frame != NULL) {
         free(frame);
@@ -128,7 +120,7 @@ void *worker_thread(void *arg)
     char buffer1[1024] = {0};
     unsigned char *tmp_framebuffer = NULL;
 
-    /* set cleanup handler to cleanup allocated ressources */
+    /* set cleanup handler to cleanup allocated resources */
     pthread_cleanup_push(worker_cleanup, NULL);
 
     // set UDP server data structures ---------------------------
