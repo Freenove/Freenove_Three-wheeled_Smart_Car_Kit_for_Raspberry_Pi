@@ -359,7 +359,6 @@ class Recv_Sonic_Thread(threading.Thread):
         #while True:
         while self.isRun:
             sonic = self.wgt_main.tcp.recvData().decode('utf-8')
-            print("debug___________________________________"+str(sonic))
             #print(sonic, type(sonic))
             try :
                 iSonic = float(sonic)
