@@ -359,6 +359,7 @@ class Recv_Sonic_Thread(threading.Thread):
         #while True:
         while self.isRun:
             sonic = self.wgt_main.tcp.recvData().decode('utf-8')
+            print("debug___________________________________"+str(sonic))
             #print(sonic, type(sonic))
             try :
                 iSonic = float(sonic)
@@ -447,6 +448,7 @@ class Piant_Thread(threading.Thread):
             #self.wgt_main.sonic_buff[angle/self.inteval_Angle] = iSonic
             time.sleep(0.1)
         print((self.wgt_main.sonic_buff))    
+        
 class PaintArea(QWidget):    
     max_range = 201
     def __init__(self, parent=None):
@@ -467,8 +469,8 @@ class PaintArea(QWidget):
         qp.setPen(QtCore.Qt.red)
         size = self.size()        
         #qp.drawRect(60, 60, 100, 100)
-        orgin_X = size.width()/2.0
-        orgin_Y = size.height()-100
+        orgin_X = int(size.width()/2.0)
+        orgin_Y = int(size.height()-100)
         qp.drawLine(0, orgin_Y, size.width(),orgin_Y )
         qp.drawLine(orgin_X, 0, orgin_X,size.height())
         #print time.ctime(),"refrash....."
@@ -484,7 +486,7 @@ class PaintArea(QWidget):
             d = self.parent.sonic_buff[i+4]
             min_Angle = 45#self.parent.min_Angle
             if d != 0:
-                qp.drawEllipse(orgin_X + 2*d*math.cos((min_Angle+i*10)/180.0*math.pi), orgin_Y - 2*d*math.sin((min_Angle+i*10)/180.0*math.pi), 5, 5)
+                qp.drawEllipse(int(orgin_X + 2*d*math.cos((min_Angle+i*10)/180.0*math.pi)), int(orgin_Y - 2*d*math.sin((min_Angle+i*10)/180.0*math.pi)), 5, 5)
         #for target_cycle in 
             
         
