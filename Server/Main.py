@@ -25,7 +25,7 @@ import time
 
 class Main(QMainWindow, Ui_MainWindow):
     tcp = mTCPServer()
-    tcp.setDaemon(True)
+    tcp.daemon = True
     cmr_Thread = Camera_Server()
     #cmr_Thread.setDaemon(True)
     #cmr_Thread = Camera_Server()
