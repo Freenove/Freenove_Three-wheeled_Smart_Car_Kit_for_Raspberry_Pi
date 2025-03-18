@@ -1,0 +1,152 @@
+# Configuration file for the Sphinx documentation builder.
+#
+# For the full list of built-in configuration values, see the documentation:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here.
+from datetime import datetime
+import os
+import pathlib
+import sys
+
+sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
+
+# 克隆项目代码地址
+os.system("rm -r freenove_Kit")
+os.system("git clone --depth 1 https://github.com/Freenove/Freenove_Three-wheeled_Smart_Car_Kit_for_Raspberry_Pi freenove_Kit")
+
+# # 删除文件夹
+# os.system("rm -r _static")
+# os.system("rm -r _templates")
+# os.system("rm freenove-logo.png")
+
+# # 克隆所需资料到freenove_css文件夹中
+# os.system("git clone https://github.com/Vegetable-SYC/templete-css freenove_css")
+
+# # 复制网页样式到对应位置
+# os.system("cp -r freenove_css/_static .")
+# os.system("cp -r freenove_css/_templates .")
+
+# # 复制网页logo到对应位置
+# os.system("cp freenove_css/freenove-logo.png .")
+
+# # 复制网页图标到对应位置
+# os.system("cp freenove_css/freenove-logo.png .")
+
+# # 删除文件夹
+# os.system("rm -r freenove_css")
+
+def prepend_to_file(file_path, content):
+    with open(file_path, "r+") as file:
+        original = file.read()
+        file.seek(0)  # 将文件光标移动到开头
+        file.write(content)
+        file.write(original)
+
+def apend_to_file(file_path, content):
+    with open(file_path, "a") as file:
+        file.write(content)
+
+# extlinks = {
+#     "fnk0020_github_url": (
+#         "https://github.com/Freenove/Freenove_Ultimate_Starter_Kit_for_Raspberry_Pi%s",
+#         "fnk0020_github_url%s",
+#     )
+# }
+
+# print("hello")
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
+project = "fnk0021-docs"
+copyright = "2016 - " + str(datetime.now().year) + ", support@freenove.com"
+author = "freenove"
+release = "v1.0"
+version = "v1.0"
+
+# -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+
+# extensions = []
+extensions = [
+    "sphinx_rtd_theme",
+    # "sphinx_favicon"
+    # "sphinx.ext.extlinks",
+    # "sphinx.ext.intersphinx",
+]
+
+templates_path = ["_templates"]
+exclude_patterns = []
+
+# -- Options for HTML output -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+
+# html_theme = 'alabaster'
+html_theme = "sphinx_rtd_theme"
+# html_theme = 'pydata_sphinx_theme'
+
+
+html_static_path = ["_static"]
+html_favicon = "_static/images/freenove_logo_tag_icon.png"
+html_logo = "_static/images/freenove_logo_home_button.png"
+html_theme_options = {
+    'collapse_navigation': False,
+    'logo_only': True,
+    'navigation_depth': -1,
+    'includehidden': True,
+    'flyout_display': 'hidden',
+    'version_selector': True,
+    'prev_next_buttons_location': 'both',
+    'style_external_links': True,
+    'language_selector': True,
+    # 'titles_only': True,
+    # 'style_nav_header_background': '#E3E3E3',
+
+}
+
+# multi-language docs
+language = 'en'
+locale_dirs = ['../locales/']   # path is example but recommended.
+gettext_compact = False  # optional.
+gettext_uuid = True  # optional.
+
+rst_prolog = """
+.. include:: <s5defs.txt>
+.. include:: ../../../_static/style/custom-style.txt
+ """
+
+variables_to_export = [
+    "project",
+    "copyright",
+    "version",
+]
+frozen_locals = dict(locals())
+prolog = "\n".join(
+    map(lambda x: f".. |{x}| replace:: {frozen_locals[x]}",
+        variables_to_export)
+)
+# rst_prolog = rst_prolog + prolog
+print(rst_prolog)
+del frozen_locals
+
+html_css_files = [
+    'https://cdn.jsdelivr.net/gh/Freenove/freenove-docs/docs/source/_static/css/color-roles.css',
+    'https://cdn.jsdelivr.net/gh/Freenove/freenove-docs/docs/source/_static/css/custom.css',
+    'https://cdn.jsdelivr.net/gh/Freenove/freenove-docs/docs/source/_static/css/navigationStyle.css',
+]
+
+html_js_files = [
+    'https://cdn.jsdelivr.net/gh/Freenove/freenove-docs/docs/source/_static/js/custom.js',
+    # 'js/custom.js'
+]
+
+intersphinx_mapping = {
+    # "rpi-starter-kit": ("https://freenove-docs2.readthedocs.io/projects/fnk0066/en/latest/", None),
+}
+
+intersphinx_disabled_reftypes = ["*"]
+
+def setup(app):
+    pass
+    # app.add_css_file("css\custom.css")
