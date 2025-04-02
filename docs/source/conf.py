@@ -12,84 +12,53 @@ import sys
 
 sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 
-# 克隆项目代码地址
 os.system("rm -r freenove_Kit")
 os.system("git clone --depth 1 https://github.com/Freenove/Freenove_Three-wheeled_Smart_Car_Kit_for_Raspberry_Pi freenove_Kit")
 
-# # 删除文件夹
-# os.system("rm -r _static")
-# os.system("rm -r _templates")
-# os.system("rm freenove-logo.png")
-
-# # 克隆所需资料到freenove_css文件夹中
-# os.system("git clone https://github.com/Vegetable-SYC/templete-css freenove_css")
-
-# # 复制网页样式到对应位置
-# os.system("cp -r freenove_css/_static .")
-# os.system("cp -r freenove_css/_templates .")
-
-# # 复制网页logo到对应位置
-# os.system("cp freenove_css/freenove-logo.png .")
-
-# # 复制网页图标到对应位置
-# os.system("cp freenove_css/freenove-logo.png .")
-
-# # 删除文件夹
-# os.system("rm -r freenove_css")
-
-def prepend_to_file(file_path, content):
-    with open(file_path, "r+") as file:
-        original = file.read()
-        file.seek(0)  # 将文件光标移动到开头
-        file.write(content)
-        file.write(original)
-
-def apend_to_file(file_path, content):
-    with open(file_path, "a") as file:
-        file.write(content)
-
-# extlinks = {
-#     "fnk0020_github_url": (
-#         "https://github.com/Freenove/Freenove_Ultimate_Starter_Kit_for_Raspberry_Pi%s",
-#         "fnk0020_github_url%s",
-#     )
-# }
-
-# print("hello")
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
 project = "fnk0021-docs"
-copyright = "2016 - " + str(datetime.now().year) + ", support@freenove.com"
-author = "freenove"
-release = "v1.0"
-version = "v1.0"
+# <!!!BEGIN!!!>
+copyright = '2016-2025, Freenove'
+author = 'Freenove'
+release = 'v1.0.0'
+version = 'v1.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-# extensions = []
+# extensions = ['recommonmark','sphinx_markdown_tables']
 extensions = [
-    "sphinx_rtd_theme",
+    "sphinx.ext.duration",
+    "sphinx.ext.doctest",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.autosectionlabel",
+    "sphinxcontrib.googleanalytics",
     # "sphinx_favicon"
-    # "sphinx.ext.extlinks",
-    # "sphinx.ext.intersphinx",
 ]
 
-templates_path = ["_templates"]
+autosectionlabel_prefix_document = True
+googleanalytics_id="G-THC0SQQTDX"
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+}
+
+templates_path = ['_templates']
 exclude_patterns = []
+
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-# html_theme = 'alabaster'
-html_theme = "sphinx_rtd_theme"
-# html_theme = 'pydata_sphinx_theme'
-
-
-html_static_path = ["_static"]
+html_static_path = ['_static']
 html_favicon = "_static/images/freenove_logo_tag_icon.png"
 html_logo = "_static/images/freenove_logo_home_button.png"
+
+# html_favicon = "https://cdn.jsdelivr.net/gh/Freenove/freenove-docs/docs/source/_static/images/freenove_logo_tag_icon.png"
+# html_logo = "https://cdn.jsdelivr.net/gh/Freenove/freenove-docs/docs/source/_static/images/freenove_logo_home_button.png"
+
+html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'collapse_navigation': False,
     'logo_only': True,
@@ -104,6 +73,8 @@ html_theme_options = {
     # 'style_nav_header_background': '#E3E3E3',
 
 }
+# html_copy_source = False
+# html_show_sourcelink = False
 
 # multi-language docs
 language = 'en'
@@ -114,7 +85,7 @@ gettext_uuid = True  # optional.
 rst_prolog = """
 .. include:: <s5defs.txt>
 .. include:: ../../../_static/style/custom-style.txt
- """
+"""
 
 variables_to_export = [
     "project",
@@ -141,12 +112,24 @@ html_js_files = [
     # 'js/custom.js'
 ]
 
-intersphinx_mapping = {
-    # "rpi-starter-kit": ("https://freenove-docs2.readthedocs.io/projects/fnk0066/en/latest/", None),
+extlinks = {
+    "Freenove": (
+        "https://docs.freenove.com/projects/%s/en/latest/", None
+    )
 }
 
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
+
+intersphinx_mapping = {
+    # "fnk0017": ("https://docs.freenove.com/projects/fnk0017/en/latest/", None),
+}
 intersphinx_disabled_reftypes = ["*"]
+
 
 def setup(app):
     pass
-    # app.add_css_file("css\custom.css")
+    # app.add_css_file("css/custom.css")
+    # app.add_css_file('https://cdn.jsdelivr.net/gh/Freenove/freenove-docs/docs/source/_static/css/custom.css')
+
+suppress_warnings = ['autosectionlabel.*']
+# <!!!END!!!>
