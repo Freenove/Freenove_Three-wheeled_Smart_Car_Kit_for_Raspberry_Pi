@@ -450,6 +450,7 @@ class Piant_Thread(threading.Thread):
             #self.wgt_main.sonic_buff[angle/self.inteval_Angle] = iSonic
             time.sleep(0.1)
         print((self.wgt_main.sonic_buff))    
+        
 class PaintArea(QWidget):    
     max_range = 201
     def __init__(self, parent=None):
@@ -487,7 +488,7 @@ class PaintArea(QWidget):
             d = self.parent.sonic_buff[i+4]
             min_Angle = 45#self.parent.min_Angle
             if d != 0:
-                qp.drawEllipse(orgin_X + 2*d*math.cos((min_Angle+i*10)/180.0*math.pi), orgin_Y - 2*d*math.sin((min_Angle+i*10)/180.0*math.pi), 5, 5)
+                qp.drawEllipse(int(orgin_X + 2*d*math.cos((min_Angle+i*10)/180.0*math.pi)), int(orgin_Y - 2*d*math.sin((min_Angle+i*10)/180.0*math.pi)), 5, 5)
         #for target_cycle in 
             
         
